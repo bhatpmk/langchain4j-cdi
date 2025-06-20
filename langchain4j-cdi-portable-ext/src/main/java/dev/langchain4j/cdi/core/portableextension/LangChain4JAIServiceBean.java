@@ -56,6 +56,12 @@ public class LangChain4JAIServiceBean<T> implements Bean<T>, PassivationCapable 
         return aiServiceInterfaceClass.getName();
     }
 
+    // Override abstract method isNullable() in jakarta.enterprise.inject.spi.Bean v3.0
+    @Override
+    public boolean isNullable() {
+        return false;
+    }
+
     /*
      * (non-Javadoc)
      *

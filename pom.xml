@@ -32,8 +32,14 @@
 
         <dev.langchain4j.core.version>1.0.1</dev.langchain4j.core.version>
         <dev.langchain4j.version>1.0.1-beta6</dev.langchain4j.version>
-        <jakartaee-api.version>10.0.0</jakartaee-api.version>
-        <jakarta.enterprise.cdi-api.version>4.0.1</jakarta.enterprise.cdi-api.version>
+
+        <!-- Set Jakarta EE API version to 9.1.0 for WebLogic 15.1 -->
+        <!-- jakartaee-api.version>10.0.0</jakartaee-api.version -->
+        <jakartaee-api.version>9.1.0</jakartaee-api.version>
+
+        <!-- Set Jakarta Enterprise CDI API version to 3.0.1 for WebLogic 15.1 -->
+        <!-- jakarta.enterprise.cdi-api.version>4.0.1</jakarta.enterprise.cdi-api.version -->
+        <jakarta.enterprise.cdi-api.version>3.0.1</jakarta.enterprise.cdi-api.version>
 
         <!-- MP -->
         <version.eclipse.microprofile.config>3.1</version.eclipse.microprofile.config>
@@ -41,7 +47,10 @@
 
         <version.asm>9.7</version.asm>
         <weld-junit5.version>4.0.4.Final</weld-junit5.version>
-        <version.weld>5.1.5.Final</version.weld>
+
+        <!-- Set  Weld version to 4.0.3.Final for WebLogic 15.1 -->
+        <!-- version.weld>5.1.5.Final</version.weld -->
+        <version.weld>4.0.3.Final</version.weld>
         <version.org.jboss.logging>3.6.1.Final</version.org.jboss.logging>
 
         <!-- SmallRye -->

@@ -211,9 +211,9 @@ public class CommonLLMPluginCreator {
         try {
             return Thread.currentThread().getContextClassLoader().loadClass(className);
         } catch (ClassNotFoundException cnfe) {
-            LOGGER.info("***** Failed to load class " + className + " from context class loader");
+            System.out.println("***** CommonLLMPluginCreator: Failed to load class " + className + " from context class loader");
         }
-        LOGGER.info("***** Try to load the class from current module");
+        System.out.println("***** CommonLLMPluginCreator: Try to load the class " + className + " from situational class loader");
         return CommonLLMPluginCreator.class.getClassLoader().loadClass(className);
     }
 

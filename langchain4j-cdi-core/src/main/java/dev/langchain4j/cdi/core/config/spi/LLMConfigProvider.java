@@ -26,7 +26,7 @@ public class LLMConfigProvider {
             if (factories.isEmpty()) {
                 throw new RuntimeException("No service Found for LLMConfig interface");
             } else {
-                System.out.println("LLMConfigProvider: Loaded LLMConfig implementation from situational class loader");
+                System.out.println("LLMConfigProvider: Loaded LLMConfig implementation from the class loader associated with the current class");
             }
         } else {
             System.out.println("LLMConfigProvider: Loaded LLMConfig implementation from context class loader");

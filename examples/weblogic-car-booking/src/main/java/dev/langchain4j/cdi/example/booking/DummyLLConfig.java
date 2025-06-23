@@ -35,7 +35,7 @@ public class DummyLLConfig implements LLMConfig {
         try (InputStream input = LLMConfig.class.getClassLoader().getResourceAsStream(llmConfigProperties)) {
             if (input != null) {
                 properties.load(input);
-                System.out.println("***** DummyLLConfig#init: Loaded LLMConfig from situational class loader " + LLMConfig.class.getClassLoader());
+                System.out.println("***** DummyLLConfig#init: Loaded LLMConfig from class loader " + LLMConfig.class.getClassLoader() + ", associated with the current class");
                 // Validate a sample key from the LLM Config file
                 System.out.println("dev.langchain4j.plugin.chat-model.class: " + properties.getProperty("dev.langchain4j.plugin.chat-model.class"));
                 return;

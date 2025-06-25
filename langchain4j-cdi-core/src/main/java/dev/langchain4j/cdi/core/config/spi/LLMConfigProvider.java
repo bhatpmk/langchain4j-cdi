@@ -15,6 +15,31 @@ public class LLMConfigProvider {
     private static final Logger LOGGER = Logger.getLogger(LLMConfigProvider.class);
 
     static {
+
+        try {
+            ClassLoader clsLoader = Thread.currentThread().getContextClassLoader();
+            Enumeration<URL> roots = clsLoader.getResources("");
+            System.out.println("**** Context class loader " + clsLoader.getName() + ", resource roots:");
+            while (roots.hasMoreElements()) {
+                URL url = roots.nextElement();
+                System.out.println(" - " + url);
+            }
+        } catch (Exception exp) {
+            System.out.println("Error loading classpath resources " + exp.getMessage());
+        }
+
+        try {
+            ClassLoader clsLoader = LLMConfigProvider.class.getClassLoader();
+            Enumeration<URL> roots = clsLoader.getResources("");
+	    System.out.println("**** Class loader for the current class " + clsLoader.getName() + ", resource roots:");	
+            while (roots.hasMoreElements()) {
+                URL url = roots.nextElement();
+                System.out.println(" - " + url);
+            }
+        } catch (Exception exp) {
+            System.out.println("Error loading classpath resources " + exp.getMessage());
+        }
+
         ServiceLoader<LLMConfig> loader = ServiceLoader.load(LLMConfig.class,
                 Thread.currentThread().getContextClassLoader());
         final List<LLMConfig> factories = new ArrayList<>();

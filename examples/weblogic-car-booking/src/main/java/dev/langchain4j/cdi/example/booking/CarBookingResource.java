@@ -15,8 +15,8 @@ public class CarBookingResource {
     @Inject
     private ChatAiService aiService;
 
-    //@Inject
-    //private FraudAiService fraudService;
+    @Inject
+    private FraudAiService fraudService;
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -35,7 +35,7 @@ public class CarBookingResource {
         return answer;
     }
 
-    /*@GET
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/fraud")
     public FraudResponse detectFraudForCustomer(
@@ -43,6 +43,6 @@ public class CarBookingResource {
 
             @QueryParam("surname") String surname) {
         return fraudService.detectFraudForCustomer(name, surname);
-    }*/
+    }
 
 }

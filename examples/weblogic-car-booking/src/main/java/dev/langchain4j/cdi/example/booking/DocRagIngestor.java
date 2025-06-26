@@ -37,12 +37,9 @@ public class DocRagIngestor {
     @Produces
     private InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
 
-    // The system property can be set while bring up the server. Packaging documents in the .war is not a good idea
-    //private File docs = new File(System.getProperty("docragdir"));
-    // private File docs = new File("path/langchain4j-cdi/examples/weblogic-car-booking/docs-for-rag");
+    private File docs = new File(System.getProperty("docragdir"));
 
     private List<Document> loadDocs() {
-
         return loadDocuments(docs.getPath(), new TextDocumentParser());
     }
 

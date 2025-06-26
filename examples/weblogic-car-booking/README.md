@@ -41,18 +41,24 @@ cd <project_root>/examples/weblogic-car-booking; mvn clean package
 
 ## Configuration
 
-All configuration is centralized in src/main/java/resources/META-INF/llm-config.properties microprofile-config.properties.
-The configuration is packaged inside WEB-INF/classes/META-INF in the .war file built from maven-war-plugin. 
+All LLM the configuration is centralized in config/llm-config.properties. The sample documents for RAG ingestion are placed
+under docs-for-rag. Make sure that the fully qualified path to llm-config.properties and docs-for-rag are available as
+JAVA_OPTIONS when you start WebLogic.
 
 ## Running the application
-
 * Start WebLogic 15.1.1 server
 * Deploy the application weblogic-car-booking.war using a tool of your choice. Here is the sample deployment command using weblogic.Deployer
 ```
 $JAVA_HOME/bin/java -cp $WL_HOME/server/lib/weblogic.jar weblogic.Deployer -adminurl t3://<admin host>:<admin port>  -username <user>  -password <password> -deploy -name weblogic-car-booking -targets AdminServer <path>/weblogic-car-booking.war
 ```
 
+The script build.sh at the root of the project contains functions to build langchani4j-cdi modules, weblogic-car-booking, deploy and undeploy the demo application.
+
 ## Access chat service
+
+The chat service can be accessed in a browser by accessing the URL http://<host>:<port>/weblogic-car-booking/
+
+It can also be accessed using curl -
 ```
 curl -X 'GET' 'http://<host>:<port>/weblogic-car-booking/api/car-booking/chat?question=I%20want%20to%20book%20a%20car%20how%20can%20you%20help%20me%3F' -H 'accept: text/plain'
 ```

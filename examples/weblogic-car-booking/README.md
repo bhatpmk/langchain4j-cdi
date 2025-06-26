@@ -53,6 +53,7 @@ $JAVA_HOME/bin/java -cp $WL_HOME/server/lib/weblogic.jar weblogic.Deployer -admi
 ```
 
 The script build.sh at the root of the project contains functions to build langchani4j-cdi modules, weblogic-car-booking, deploy and undeploy the demo application.
+Please take a look at the environment variables required by the script and the functions to know more.
 
 ## Access chat service
 

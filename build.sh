@@ -30,7 +30,7 @@ if [ -z "${WL_HOME}" ]; then
     exit 1
 fi
 
-build_all() {
+build_cdi() {
   echo "Building langchain4j-cdi-config"
   cd $BASE_DIR/langchain4j-cdi-config
   mvn clean install
@@ -42,8 +42,6 @@ build_all() {
   echo "Building langchain4j-cdi-portable-ext"
   cd $BASE_DIR/langchain4j-cdi-portable-ext
   mvn clean install -DskipTests
-
-  build_demo
 }
 
 build_demo() {
@@ -98,8 +96,8 @@ COMMAND=$1
 
 # Dispatch to the appropriate function
 case "$COMMAND" in
-  all)
-    build_all
+  cdi)
+    build_cdi
     ;;
   demo)
     build_demo
@@ -114,7 +112,7 @@ case "$COMMAND" in
     test
     ;;
   *)
-    echo "Invalid command, usage: $0 {build|demo|undeploy|deploy|test}"
+    echo "Invalid command, usage: $0 {all|demo|undeploy|deploy|test}"
     exit 1
     ;;
 esac

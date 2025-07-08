@@ -30,18 +30,12 @@ if [ -z "${WL_HOME}" ]; then
     exit 1
 fi
 
-build_cdi() {
-  echo "Building langchain4j-cdi-config"
-  cd $BASE_DIR/langchain4j-cdi-config
-  mvn clean install
-
-  echo "Building langchain4j-cdi-core"
-  cd $BASE_DIR/langchain4j-cdi-core
-  mvn clean install
-
-  echo "Building langchain4j-cdi-portable-ext"
-  cd $BASE_DIR/langchain4j-cdi-portable-ext
-  mvn clean install -DskipTests
+build_cdi_extn() {
+  # There are some tests under langchain4j-cdi-portable-ext, which do not work with CDI 3.0.1. So tests are skipped from
+  # that module
+  echo "Building only the required modules"
+  cd $BASE_DIR
+  mvn clean install -pl langchain4j-cdi-core,langchain4j-cdi-portable-ext -am -Pskip-tests-portable-ext
 }
 
 build_demo() {
@@ -64,8 +58,8 @@ deploy() {
 
 test() {
   sample_query="Hello, how can you help me?"
-  # sample_query="What is your list of cars??"
-  # sample_query="What is your cancelation policy?"
+  # sample_query="What is your list of cars?"
+  # sample_query="What is your cancellation policy?"
   # sample_query="What is your fleet size? Be short please."
   # sample_query="How many electric cars do you have?"
   # sample_query="My name is James Bond, please list my bookings"
@@ -96,10 +90,10 @@ COMMAND=$1
 
 # Dispatch to the appropriate function
 case "$COMMAND" in
-  cdi)
-    build_cdi
+  build_cdi)
+    build_cdi_extn
     ;;
-  demo)
+  build_demo)
     build_demo
     ;;
   undeploy)
@@ -112,7 +106,7 @@ case "$COMMAND" in
     test
     ;;
   *)
-    echo "Invalid command, usage: $0 {all|demo|undeploy|deploy|test}"
+    echo "Invalid command, usage: $0 {build_cdi|build_demo|undeploy|deploy|test}"
     exit 1
     ;;
 esac

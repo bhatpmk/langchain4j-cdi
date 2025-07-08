@@ -15,40 +15,17 @@ public class LLMConfigProvider {
     private static final Logger LOGGER = Logger.getLogger(LLMConfigProvider.class);
 
     static {
-
-        try {
-            Enumeration<URL> roots = Thread.currentThread().getContextClassLoader().getResources("");
-            System.out.println("Resources visible to context class loader resources:");
-            while (roots.hasMoreElements()) {
-                URL url = roots.nextElement();
-                System.out.println(" - " + url);
-            }
-        } catch (Exception exp) {
-            System.out.println("Error loading classpath resources " + exp.getMessage());
-        }
-
-        try {
-            Enumeration<URL> roots = LLMConfigProvider.class.getClassLoader().getResources("");
-            System.out.println("Resources visible to the loader of current class::");
-            while (roots.hasMoreElements()) {
-                URL url = roots.nextElement();
-                System.out.println(" - " + url);
-            }
-        } catch (Exception exp) {
-            System.out.println("Error loading classpath resources " + exp.getMessage());
-        }
-
         ServiceLoader<LLMConfig> loader = ServiceLoader.load(LLMConfig.class,
                 Thread.currentThread().getContextClassLoader());
         final List<LLMConfig> factories = new ArrayList<>();
         loader.forEach(factories::add);
         if (factories.isEmpty()) {
-            System.out.println("Warning: LLMConfigProvider failed to load the LLMConfig implementation from context class loader");
             loader = ServiceLoader.load(LLMConfig.class, LLMConfig.class.getClassLoader());
             loader.forEach(factories::add);
             if (factories.isEmpty()) {
                 throw new RuntimeException("No service Found for LLMConfig interface");
             }
+            System.out.println("Warning: Loaded LLMConfig implementation from the classloader of LLMConfig interface");
         }
         llmConfig = factories.iterator().next(); //loader.findFirst().orElse(null);
         LOGGER.debug("Found LLMConfig interface: " + llmConfig.getClass().getName());

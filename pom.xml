@@ -453,6 +453,13 @@
                 </plugins>
             </build>
         </profile>
+        <!-- Profile to skip running tests from langchain4j-cdi-portable-ext module when built with Jakarta EE 9.1 -->
+        <profile>
+            <id>skip-tests-portable-ext</id>
+            <properties>
+                <skip.tests.portable.ext>true</skip.tests.portable.ext>
+            </properties>
+        </profile>
     </profiles>
 
 </project>

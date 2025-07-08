@@ -33,10 +33,9 @@ The project expects Ollama server is accessible via the URL http://localhost:114
 
 ### Build langchani4j-cdi-core and langchain4j-cdi-portable-extn, before building weblogic-car-booking
 ```
-cd <project_root>/langchain4j-cdi-core; mvn clean install
-cd <project_root>/langchain4j-cdi-config; mvn clean install
-cd <project_root>/langchain4j-cdi-portable-extn; mvn clean install -DskipTests
-cd <project_root>/examples/weblogic-car-booking; mvn clean package
+cd <project_root>
+mvn clean install -pl langchain4j-cdi-core,langchain4j-cdi-portable-ext -am -Pskip-tests-portable-ext
+cd examples/weblogic-car-booking; mvn clean package
 ```
 
 ## Configuration
@@ -45,7 +44,11 @@ All LLM the configuration is centralized in config/llm-config.properties. The sa
 under docs-for-rag. Make sure that the fully qualified path to llm-config.properties and docs-for-rag are available as
 JAVA_OPTIONS when you start WebLogic.
 
+For example, set the following JAVA_OPTIONS from the terminal where you start WebLogic.
+export JAVA_OPTIONS="-Dllmconfigfile=<project dir>/langchain4j-cdi/examples/weblogic-car-booking/config/llm-config.properties -Ddocragdir=<project dir>/langchain4j-cdi/examples/weblogic-car-booking/docs-for-rag"
+
 ## Running the application
+
 * Start WebLogic 15.1.1 server
 * Deploy the application weblogic-car-booking.war using a tool of your choice. Here is the sample deployment command using weblogic.Deployer
 ```

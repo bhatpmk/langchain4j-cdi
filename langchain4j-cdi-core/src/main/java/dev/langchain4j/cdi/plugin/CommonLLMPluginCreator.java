@@ -210,10 +210,10 @@ public class CommonLLMPluginCreator {
     private static Class<?> loadClass(String className) throws ClassNotFoundException {
         try {
             return Thread.currentThread().getContextClassLoader().loadClass(className);
-        } catch (ClassNotFoundException cnfe) {
-            System.out.println("Warning: Failed to load class " + className + " from context class loader");
+        } catch (ClassNotFoundException classNotFoundException) {
+            LOGGER.warn("Context class loader failed to load the class " + className);
+            return CommonLLMPluginCreator.class.getClassLoader().loadClass(className);
         }
-        return CommonLLMPluginCreator.class.getClassLoader().loadClass(className);
     }
 
     @SuppressWarnings("unchecked")

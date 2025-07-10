@@ -15,11 +15,6 @@ ADMIN_USER="${ADMIN_USER:-"weblogic"}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD}"
 SERVER_NAME="${SERVER_NAME:-"AdminServer"}"
 
-if [ -z "${ADMIN_PASSWORD}" ]; then
-    echo "Environment variable ADMIN_PASSWORD not set"
-    exit 1
-fi
-
 if [ -z "${JAVA_HOME}" ]; then
     echo "Environment variable JAVA_HOME not set"
     exit 1
@@ -45,12 +40,20 @@ build_demo() {
 }
 
 undeploy() {
+  if [ -z "${ADMIN_PASSWORD}" ]; then
+    echo "Environment variable ADMIN_PASSWORD not set"
+    exit 1
+  fi
   echo "Undeploying weblogic-car-booking..."
   cd $BASE_DIR
   $JAVA_HOME/bin/java -cp $WL_HOME/server/lib/weblogic.jar weblogic.Deployer -adminurl $ADMIN_URL  -username $ADMIN_USER  -password $ADMIN_PASSWORD -undeploy -name weblogic-car-booking -targets $SERVER_NAME
 }
 
 deploy() {
+  if [ -z "${ADMIN_PASSWORD}" ]; then
+    echo "Environment variable ADMIN_PASSWORD not set"
+    exit 1
+  fi
   echo "Deploying weblogic-car-booking..."
   cd $BASE_DIR
   $JAVA_HOME/bin/java -cp $WL_HOME/server/lib/weblogic.jar weblogic.Deployer -adminurl $ADMIN_URL  -username $ADMIN_USER  -password $ADMIN_PASSWORD -deploy -name weblogic-car-booking -targets $SERVER_NAME $BASE_DIR/examples/weblogic-car-booking/target/weblogic-car-booking.war

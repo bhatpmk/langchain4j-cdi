@@ -1,6 +1,8 @@
 package dev.langchain4j.cdi.core.config.spi;
 
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.ServiceLoader;
 
@@ -18,11 +20,15 @@ public class LLMConfigProvider {
         final List<LLMConfig> factories = new ArrayList<>();
         loader.forEach(factories::add);
         if (factories.isEmpty()) {
-            throw new RuntimeException("No service Found for LLMConfig interface");
-        } else {
-            llmConfig = factories.iterator().next(); //loader.findFirst().orElse(null);
-            LOGGER.debug("Found LLMConfig interface: " + llmConfig.getClass().getName());
+            loader = ServiceLoader.load(LLMConfig.class, LLMConfig.class.getClassLoader());
+            loader.forEach(factories::add);
+            if (factories.isEmpty()) {
+                throw new RuntimeException("No service Found for LLMConfig interface");
+            }
+            System.out.println("Warning: Loaded LLMConfig implementation from the classloader of LLMConfig interface");
         }
+        llmConfig = factories.iterator().next(); //loader.findFirst().orElse(null);
+        LOGGER.debug("Found LLMConfig interface: " + llmConfig.getClass().getName());
     }
 
     public static LLMConfig getLlmConfig() {

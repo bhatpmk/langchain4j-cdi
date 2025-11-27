@@ -4,6 +4,8 @@ import static dev.langchain4j.cdi.core.config.spi.LLMConfig.PRODUCER;
 
 import dev.langchain4j.cdi.core.config.spi.LLMConfig;
 import dev.langchain4j.cdi.core.config.spi.ProducerFunction;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import java.lang.annotation.Annotation;
@@ -19,6 +21,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import java.util.Iterator;
+import java.util.ServiceLoader;
+import java.util.Set;
 
 /**
  * Helper to build LangChain4j beans (models, retrievers, stores, etc.) from an LLMConfig source.
@@ -37,6 +43,13 @@ public class CommonLLMPluginCreator {
         LOGGER.info("detected beans to create : " + beanNameToCreate);
 
         for (String beanName : beanNameToCreate) {
+            System.out.println("*****[PABHAT]: beanName in CommonLLMPluginCreator: " + beanName);
+            // Generic guard: allow applications to provide their own CDI @Named("{beanName}") bean
+            // and skip the programmatic creation performed by this extension.
+            if (appDefinesBeanProducer(llmConfig, beanName)) {
+                System.out.println("*****[PABHAT]: Skipping programmatic creation for plugin bean '" + beanName + "'; application-defined CDI bean expected");
+                continue;
+            }
             String className = llmConfig.getBeanPropertyValue(beanName, LLMConfig.CLASS);
             String scopeClassName = llmConfig.getBeanPropertyValue(beanName, LLMConfig.SCOPE);
             if (scopeClassName == null || scopeClassName.isBlank()) {
@@ -80,6 +93,58 @@ public class CommonLLMPluginCreator {
                     (Instance<Object> creationalContext) ->
                             finalProducer.produce(creationalContext, beanName, llmConfig)));
         }
+    }
+
+    /**
+     * Resolve LLMConfig in the order:
+     * 1) CDI bean (single)
+     * 2) ServiceLoader provider
+     * 3) Built-in fallback() with default file-based loading
+     * Always call init() before returning.
+     * @return
+     */
+    private static LLMConfig resolveLLMConfig() {
+        // 1) Prefer CDI if available
+        try {
+            Instance<LLMConfig> inst = CDI.current().select(LLMConfig.class);
+            if (!inst.isUnsatisfied() && !inst.isAmbiguous()) {
+                LLMConfig cfg = inst.get();
+                cfg.init();
+                LOGGER.info("Using LLMConfig from CDI");
+                return cfg;
+            }
+        } catch (Throwable ignored) {
+            // CDI not available or not initialized yet
+            LOGGER.warning("LLM config could not be initialized!!!");
+        }
+
+        // 2) ServiceLoader fallback
+        ServiceLoader<LLMConfig> sl = ServiceLoader.load(LLMConfig.class, Thread.currentThread().getContextClassLoader());
+        Iterator<LLMConfig> it = sl.iterator();
+        if (it.hasNext()) {
+            LLMConfig cfg = it.next();
+            cfg.init();
+            LOGGER.info("Using LLMConfig from ServiceLoader");
+            return cfg;
+        }
+        // 3) Built-in default
+        LLMConfig cfg = LLMConfig.fallback();
+        cfg.init();
+        LOGGER.info("Using built-in fallback LLMConfig");
+        return cfg;
+    }
+
+    /**
+     * Returns true if the application asked the extension to skip creating the plugin bean named {@code name}.
+     * A truthy value for key dev.langchain4j.plugin.<name>.defined_bean_producer will cause a skip.
+     * @param cfg
+     * @param name
+     * @return
+     */
+    private static boolean appDefinesBeanProducer(LLMConfig cfg, String name) {
+        String key = "dev.langchain4j.plugin." + name + ".defined_bean_producer";
+        String val = cfg.getValue(key);
+        return val != null && Boolean.parseBoolean(val.trim());
     }
 
     public record BeanData(

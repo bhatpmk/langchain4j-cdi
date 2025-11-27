@@ -6,6 +6,13 @@ import jakarta.enterprise.inject.literal.NamedLiteral;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.CDI;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -36,11 +43,104 @@ public abstract class LLMConfig {
     public static final String CLASS = "class";
     public static final String SCOPE = "scope";
 
-    public abstract void init();
+    // Backing store for default implementations. Subclasses may ignore it and override methods completely.
+    protected final Properties properties = new Properties();
 
-    public abstract Set<String> getPropertyKeys();
+    //public abstract void init();
 
-    public abstract String getValue(String key);
+    /**
+     * Default, non-breaking file-based initialization. Subclasses may override.
+     * Order:
+     *  1) -Dllmconfigfile (absolute or relative path)
+     *  2) LLM_CONFIG_FILE environment variable
+     *  3) Classpath: /llm-config.properties, /config/llm-config.properties, /META-INF/llm-config.properties
+     *
+     */
+    public void init() {
+        boolean loaded = false;
+        String sysPath = System.getProperty("llmconfigfile");
+        String envPath = System.getenv("LLM_CONFIG_FILE");
+        try {
+            if (sysPath != null && !sysPath.isBlank()) {
+                File f = new File(sysPath);
+                if (f.isFile()) {
+                    try (FileInputStream fis = new FileInputStream(f)) {
+                        properties.load(fis);
+                        loaded = true;
+                        System.out.println("***** [PABHAT]: Loaded LLM config from system property llmconfigfile=" + f.getAbsolutePath());
+
+                    }
+                }
+            }
+            if (!loaded && envPath != null && !envPath.isBlank()) {
+                File f = new File(envPath);
+                if (f.isFile()) {
+                    try (FileInputStream fis = new FileInputStream(f)) {
+                        properties.load(fis);
+                        loaded = true;
+                        System.out.println("***** [PABHAT]: Loaded LLM config from env LLM_CONFIG_FILE=" + f.getAbsolutePath());
+                    }
+                }
+            }
+            if (!loaded) {
+                for (String candidate : new String[]{"/llm-config.properties", "/config/llm-config.properties", "/META-INF/llm-config.properties"}) {
+                    try (InputStream is = LLMConfig.class.getResourceAsStream(candidate)) {
+                        if (is != null) {
+                            properties.load(is);
+                            loaded = true;
+                            System.out.println("***** [PABHAT]: Loaded LLM config from classpath " + candidate);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!loaded) {
+                System.out.println("***** [PABHAT]: No LLM config source found; using empty Properties");
+
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("***** [PABHAT]: Failed to load LLM configuration", e);
+        }
+    }
+
+    //public abstract Set<String> getPropertyKeys();
+
+    /**
+     * Default non-breaking implementation based on the internal Properties store.
+     * Subclasses may override to provide different behavior.
+     *
+     * @return
+     */
+    public Set<String> getPropertyKeys() {
+        return properties.keySet().stream()
+                .map(Object::toString)
+                .filter(k -> k.startsWith(PREFIX))
+                .collect(Collectors.toSet());
+    }
+
+    //public abstract String getValue(String key);
+
+    /**
+     * Default non-breaking implementation based on the internal Properties store.
+     * Subclasses may override to provide different behavior.
+     *
+     * @param key
+     * @return
+     */
+    public String getValue(String key) {
+        return properties.getProperty(key);
+    }
+
+    /**
+     * Built-in fallback instance used when neither CDI nor ServiceLoader provide an implementation.
+     * This anonymous subclass relies on the default implementations defined above.
+     *
+     * @return
+     */
+    public static LLMConfig fallback() {
+        return new LLMConfig() {};
+    }
+
 
     /**
      * Get all Langchain4j-cdi LLM beans names, prefixed by PREFIX For example:
